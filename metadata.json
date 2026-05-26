@@ -1,0 +1,6 @@
+{
+  "name": "會議摘要與翻譯助理",
+  "description": "一個專業的會議記錄摘要與翻譯工具，支援貼上會議逐字稿、自訂總結格式、生成精準的繁體中文摘要，並提供一鍵複製與匯出功能。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
