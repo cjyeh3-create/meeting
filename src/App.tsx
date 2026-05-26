@@ -29,6 +29,7 @@ export default function App() {
   const [tone, setTone] = useState<SummaryTone>("professional");
   const [language, setLanguage] = useState<SummaryLanguage>("en");
   const [customPrompt, setCustomPrompt] = useState<string>("");
+  const [provider, setProvider] = useState<"gemini" | "nvidia">("gemini");
 
   // UI state
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -148,7 +149,7 @@ export default function App() {
     setSelectedHistoryId(null);
 
     try {
-      const response = await fetch("/api/summarize", {
+      const response = await fetch("/api/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -158,7 +159,8 @@ export default function App() {
           format,
           tone,
           language,
-          customPrompt
+          customPrompt,
+          provider
         })
       });
 
@@ -194,7 +196,8 @@ export default function App() {
         format,
         tone,
         language,
-        resultMarkdown: generatedMarkdown
+        resultMarkdown: generatedMarkdown,
+        provider
       };
 
       saveToHistory(historyItem);
@@ -246,6 +249,9 @@ export default function App() {
     if (matched) {
       setSelectedHistoryId(id);
       setResult(matched.resultMarkdown);
+      if (matched.provider) {
+        setProvider(matched.provider);
+      }
     }
   };
 
@@ -371,6 +377,71 @@ export default function App() {
             <div className="flex items-center space-x-2 mb-4">
               <Sliders className="h-4.5 w-4.5 text-purple-600" />
               <h2 className="text-sm font-bold text-slate-700">總結規格與風格設定</h2>
+            </div>
+
+            {/* 0. AI 服務提供商選擇 */}
+            <div className="space-y-2 mb-5">
+              <label className="text-xs text-slate-400 font-medium flex justify-between">
+                <span>🤖 選擇 AI 服務提供商</span>
+                <span className="text-indigo-650 font-mono text-[9px] uppercase tracking-wider">AI PROVIDER</span>
+              </label>
+              
+              <div className="grid grid-cols-2 gap-2.5">
+                {[
+                  { 
+                    id: "gemini", 
+                    name: "Google Gemini", 
+                    model: "gemini-3.5-flash", 
+                    desc: "超快速、高品質繁中摘要翻譯", 
+                    color: "indigo"
+                  },
+                  { 
+                    id: "nvidia", 
+                    name: "NVIDIA Model", 
+                    model: "nemotron-mini-4b-instruct", 
+                    desc: "極速推理、極簡專業生成式助理", 
+                    color: "emerald"
+                  }
+                ].map((prov) => (
+                  <button
+                    key={prov.id}
+                    type="button"
+                    onClick={() => setProvider(prov.id as "gemini" | "nvidia")}
+                    className={`p-3 rounded-xl border text-left transition-all duration-250 relative overflow-hidden group cursor-pointer ${
+                      provider === prov.id
+                        ? prov.id === "gemini"
+                          ? "bg-indigo-50/60 border-indigo-400 text-indigo-950 ring-1 ring-indigo-400"
+                          : "bg-emerald-50/60 border-emerald-400 text-emerald-950 ring-1 ring-emerald-400"
+                        : "bg-slate-50 border-slate-200 hover:border-slate-300 hover:bg-slate-100/50 text-slate-650"
+                    }`}
+                    id={`btn-provider-${prov.id}`}
+                  >
+                    {provider === prov.id && (
+                      <div className={`absolute -top-1 -right-1 text-white p-0.5 rounded-bl-lg shadow-sm ${
+                        prov.id === "gemini" ? "bg-indigo-650" : "bg-emerald-650"
+                      }`}>
+                        <Check className="h-2.5 w-2.5" />
+                      </div>
+                    )}
+                    <div className={`text-xs font-bold mb-1 flex items-center gap-1.5 ${
+                      provider === prov.id 
+                        ? prov.id === "gemini" ? "text-indigo-900" : "text-emerald-900" 
+                        : "text-slate-700"
+                    }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${
+                        prov.id === "gemini" ? "bg-indigo-600" : "bg-emerald-600"
+                      }`} />
+                      {prov.name}
+                    </div>
+                    <div className="text-[10px] font-mono text-slate-400 leading-tight mb-1">
+                      {prov.model}
+                    </div>
+                    <div className="text-[10px] text-slate-450 leading-normal line-clamp-2">
+                      {prov.desc}
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* 1. 輸出格式 */}
@@ -747,7 +818,9 @@ export default function App() {
 
                       {/* Footer reference note */}
                       <div className="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-                        <span>由 Gemini-3.5-flash 高效模型生成</span>
+                        <span>
+                          由 {provider === "gemini" ? "Google Gemini (gemini-3.5-flash)" : "NVIDIA (nemotron-mini-4b-instruct)"} 模型生成
+                        </span>
                         <span>繁體中文翻譯與技術詞彙整理完成</span>
                       </div>
 

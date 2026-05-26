@@ -18,6 +18,7 @@ export interface SummaryHistory {
   tone: "professional" | "casual" | "concise";
   language?: SummaryLanguage;
   resultMarkdown: string;
+  provider?: "gemini" | "nvidia";
 }
 
 export type SummaryFormat = "bullet" | "detailed" | "action_items" | "digest";
