@@ -19,6 +19,7 @@ import {
   FileDown,
   Info
 } from "lucide-react";
+import { Analytics } from '@vercel/analytics/react';
 import { SAMPLE_TEMPLATES } from "./samples";
 import { SummaryHistory, SummaryFormat, SummaryTone, SummaryLanguage } from "./types";
 
@@ -845,6 +846,7 @@ export default function App() {
           <span className="font-mono uppercase text-[9px] text-slate-400">SYSTEM READY | TAIWAN TRADITIONAL CHINESE</span>
         </div>
       </footer>
+      <Analytics />
     </div>
   );
 }
